@@ -13,7 +13,7 @@ input_data:
   validation_parts: [[4]]                 # List of list of validation parts to use (e.g., [4]) matching the dataset_ids
   reconstruction_target: "energy"        # Target variable for reconstruction ('dir3vec', 'azimuth_zenith', etc.)
   seq_dim: 25                            # Maximum sequence length of the input data
-  num_workers: 1                          # Number of worker processes for data loading
+  num_workers: 4                          # Number of worker processes for data loading
   # Add other data-related parameters if needed (e.g., specific file names, pre-processing flags)
 
 # Model Parameters
@@ -28,7 +28,7 @@ model_params:
 
 # Training Parameters
 training_params:
-  device: "cuda:1"                        # Device to train on ('cuda:0', 'cuda:1', 'cpu')
+  device: "cuda:0"                        # Device to train on ('cuda:0', 'cuda:1', 'cpu')
   batch_size: 8                          # Number of samples per batch
   n_epochs: 10                           # Maximum number of training epochs
   patience: 20                            # Number of epochs to wait for improvement before early stopping (-1 to disable)
