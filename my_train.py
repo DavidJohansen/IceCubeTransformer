@@ -194,8 +194,8 @@ callbacks = [
             ]
 
 trainer = Trainer(
-    accelerator= 'cpu', #'gpu' if 'cuda' in config['training_params']['device'] else 'cpu', 
-    devices = 1, # [int(config['training_params']['device'].split(':')[-1])] if 'cuda' in config['training_params']['device'] else 1, 
+    accelerator= 'gpu' if 'cuda' in config['training_params']['device'] else 'cpu', 
+    devices = [int(config['training_params']['device'].split(':')[-1])] if 'cuda' in config['training_params']['device'] else 1, 
     max_epochs=config['training_params']['n_epochs'], 
     log_every_n_steps=config['log_every_n_steps'], 
     logger=logger,
