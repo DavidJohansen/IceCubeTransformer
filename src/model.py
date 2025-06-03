@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 import yaml
+from torch_geometric.nn import GATv2Conv
 
 import numpy as np
 
@@ -337,6 +338,118 @@ class regression_Transformer_basisModel(nn.Module):
             return y_pred, loss
 
 
+class regression_Transformer_GNN(nn.Module):
+    """
+    Regression transformer class:
+    - contains an input embedding layer, position embedding layer, transformer layers, and output layers
+    - applies the transformer to a sequence of embeddings
+    - returns a single predicted target value
+    """
+    def __init__(
+            self,
+            embedding_dim=96,
+            n_layers=6,
+            n_heads=6,
+            input_dim=7,
+            seq_dim=256,
+            dropout=0.1,
+            output_dim=1,
+            ):
+
+        super(regression_Transformer_GNN, self).__init__()
+        # give x.shape[1] as embedding_dim
+
+        self.k_neighbors = 8  # Number of nearest neighbors to consider
+
+        self.convs = GATv2Conv(
+                in_channels=input_dim,
+                out_channels=input_dim,
+                heads=4,
+                dropout=dropout,
+                concat=True)
+        
+        self.mlp1 = FeedForward(input_dim*(4+1), dropout)
+
+        # MLP2: Final prediction from aggregated features
+        self.mlp2 = nn.Sequential(
+            nn.Linear(input_dim*4*(4+1), input_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(input_dim, output_dim)
+        )
+    def get_k_nearest(self, features, k):
+        """Compute k nearest neighbors based on x,y,z coordinates"""
+        # Use only x,y,z for distance computation
+        coords = features[:, :3]
+        dist = torch.cdist(coords, coords)
+        # Get k+1 nearest neighbors (including self)
+        topk = torch.topk(dist, k=k+1, dim=1, largest=False)
+        return topk.indices
+    
+    def get_edge_index(self, x):
+        """
+        Create edge indices for graph by connecting each dome to its k nearest neighbors
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, features)
+        Returns:
+            edge_index: Tensor of shape (2, num_edges) containing source and target node indices
+        """
+        device = x.device
+        seq_len, _ = x.shape
+
+        # Get k nearest neighbors for each node
+        neighbors = self.get_k_nearest(x, self.k_neighbors)
+        
+        # Create source nodes indices (repeated for each neighbor)
+        source_nodes = torch.arange(seq_len, device=device).repeat_interleave(self.k_neighbors)
+        
+        # Flatten neighbor indices
+        target_nodes = neighbors[:, 1:].reshape(-1)  # Exclude self-connections
+        
+        # Create edge index tensor for this batch
+        batch_edges = torch.stack([
+            source_nodes,  # Source nodes
+            target_nodes   # Target nodes (neighbors)
+        ])
+
+        edge_index = batch_edges
+        
+        return edge_index
+    
+    def forward(self, x, target=None, event_lengths=None):
+        device = x.device
+
+        batch_size, seq_len, _ = x.shape
+        
+        # Apply each convolution
+        dat = []
+        for b in range(batch_size):
+            res = self.convs(x[b], self.get_edge_index(x[b]))
+            dat.append(res)
+        d = torch.stack(dat)
+        x = torch.cat([d, x], dim=2)  # Concatenate GNN output with original features
+
+        x = self.mlp1(x)
+
+        min_pool = torch.min(x, dim=1)[0]
+        max_pool = torch.max(x, dim=1)[0]
+        sum_pool = torch.sum(x, dim=1)
+        mean_pool = torch.mean(x, dim=1)
+        
+
+        # Concatenate aggregated features
+        aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool], dim=1)
+
+
+        y_pred = self.mlp2(aggregated)
+
+        if target is None:
+            loss = None
+            return y_pred, loss
+        
+        else:
+            loss = loss_func(y_pred, target)
+            return y_pred, loss
         
 #==================================================================================================
 # Define the PyTorch Lightning model      
