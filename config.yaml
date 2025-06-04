@@ -12,14 +12,14 @@ input_data:
   training_parts: [[1]]             # List of list of training parts to use (e.g., [1, 2, 3]) matching the dataset_ids
   validation_parts: [[4]]                 # List of list of validation parts to use (e.g., [4]) matching the dataset_ids
   reconstruction_target: "energy"        # Target variable for reconstruction ('dir3vec', 'azimuth_zenith', etc.)
-  seq_dim: 25                            # Maximum sequence length of the input data
+  seq_dim: 256                            # Maximum sequence length of the input data
   num_workers: 6                          # Number of worker processes for data loading
   # Add other data-related parameters if needed (e.g., specific file names, pre-processing flags)
 
 # Model Parameters
 model_params:
   feature_dim: 32                        # Dimension of the input features (e.g., PMT-fied data)
-  embedding_dim: 12                      # Dimension of the input embeddings
+  embedding_dim: 128                      # Dimension of the input embeddings
   output_dim: 1                           # Dimension of the final output (e.g., 3 for direction vector, 2 for azimuth/zenith)
   n_layers: 4                             # Number of transformer encoder layers
   n_heads: 2                              # Number of attention heads in multi-head attention
