@@ -109,7 +109,7 @@ class PMTfiedDatasetPyArrow(Dataset):
 
         # Get the event details
         event_no = torch.tensor(int(truth.column('event_no')[local_idx].as_py()), dtype=torch.long)
-        energy = torch.tensor(np.log10(truth.column(ge'energy')[local_idx]).as_py(), dtype=torch.float32)
+        energy = torch.tensor(np.log10(truth.column(ge'energy')[local_idx].as_py()), dtype=torch.float32)
         azimuth = torch.tensor(truth.column('azimuth')[local_idx].as_py(), dtype=torch.float32)
         zenith = torch.tensor(truth.column('zenith')[local_idx].as_py(), dtype=torch.float32)
         pid = torch.tensor(truth.column('pid')[local_idx].as_py(), dtype=torch.float32)
