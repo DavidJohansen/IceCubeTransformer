@@ -42,9 +42,9 @@ training_params:
 
 # Inference Parameters (only relevant if running inference.py)
 inference_params:
-  inference_root_dir: ".." # Path to the root directory of processed input data for inference (unfiltered)
+  inference_root_dir: "lightning_logs" # Path to the root directory of processed input data for inference (unfiltered)
   inference_dataset_id: [22011]            # Dataset ID for inference (e.g., 22011)
-  inference_parts: [4]                   # List of parts to use for inference (e.g., [5])
+  inference_parts: [5]                   # List of parts to use for inference (e.g., [5])
   inference_output_path: "./"               # Directory to save inference results
 
 # Learning Rate Scheduler: OneCycleLR (Optional)
