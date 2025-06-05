@@ -33,7 +33,7 @@ training_params:
   n_epochs: 10                           # Maximum number of training epochs
   patience: 20                            # Number of epochs to wait for improvement before early stopping (-1 to disable)
   loss_function: MSE_loss            # Loss function to use 
-  learning_rate: 0.0005                   # Constant learning rate (base lr, might be overridden by scheduler)
+  learning_rate: 0.001                   # Constant learning rate (base lr, might be overridden by scheduler)
   optimizer: "AdamW"                      # Type of optimizer (supports 'Adam' or 'AdamW')
   weight_decay: 0.0001                    # Weight decay (L2 penalty)
   beta1: 0.9                              # Beta1 parameter for Adam optimizer
@@ -48,7 +48,7 @@ inference_params:
   inference_output_path: "./"               # Directory to save inference results
 
 # Learning Rate Scheduler: OneCycleLR (Optional)
-use_one_cycle_lr: true                   # Whether to use the OneCycleLR scheduler
+use_one_cycle_lr: false                   # Whether to use the OneCycleLR scheduler
 one_cycle_lr_params:
   max_lr: 0.0012                         # Maximum learning rate for OneCycleLR (can be same as base lr or higher)
   pct_start: 0.1                         # Percentage of the cycle spent increasing the learning rate
