@@ -2,7 +2,7 @@
 
 # General run Settings
 run_name: "GNN_logRun2" # Name for logging and checkpointing
-checkpoint_path: "last.ckpt"            # Directory to save model checkpoints
+checkpoint_path: #"last.ckpt"            # Directory to save model checkpoints
 
 # Input Data Parameters
 input_data:
