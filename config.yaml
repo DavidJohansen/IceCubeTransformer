@@ -1,8 +1,8 @@
 # Configuration for Training the Neutrino Reconstruction Transformer Model
 
 # General run Settings
-run_name: "GNN_logRun2" # Name for logging and checkpointing
-checkpoint_path: "lightning_logs/GNN_logRun2/version_0/last.ckpt"            # Directory to save model checkpoints
+run_name: "GNN_logRun3" # Name for logging and checkpointing
+checkpoint_path: "lightning_logs/GNN_logRun3/version_0/last.ckpt"            # Directory to save model checkpoints
 
 # Input Data Parameters
 input_data:
