@@ -59,7 +59,7 @@ def custom_collate_fn(batch, max_seq_length=config['input_data']['seq_dim']):
     # Separate events and labels
     events = [item.x for item in batch]  # Each event has shape [seq_length, 7]
     
-    padded_events, event_lengths = zip(*[pad_or_truncate(event, max_seq_length) for event in events])
+    padded_events, event_lengths = zip(*[(event, max_seq_length) for event in events]) #zip(*[pad_or_truncate(event, max_seq_length) for event in events])
 
     batch_events = torch.stack(padded_events)
     event_lengths = torch.tensor(event_lengths)
@@ -125,7 +125,7 @@ def custom_collate_fn_pulse(batch, max_seq_length=config['input_data']['seq_dim'
     # Separate events and labels
     events = [item.x for item in batch]  # Each event has shape [seq_length, 7]
     
-    padded_events, event_lengths = zip(*[pad_or_truncate_pulse(event, max_seq_length) for event in events])
+    padded_events, event_lengths = zip(*[(event, max_seq_length) for event in events]) #zip(*[pad_or_truncate_pulse(event, max_seq_length) for event in events])
 
     batch_events = torch.stack(padded_events)
     event_lengths = torch.tensor(event_lengths)
