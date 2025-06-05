@@ -89,7 +89,7 @@ print('Start storing the predictions')
 pred = []
 
 
-target= []
+targets= []
 
 # Loop over the predictions
 for i in range(len(predictions)):
@@ -103,14 +103,14 @@ for i in range(len(predictions)):
     pred.append(y_pred[:, 0])
 
 
-    target.append(target[:, 0])
+    targets.append(target[:, 0])
 
 
 # Concatenate the list of tensors to a single tensor
 pred_x = torch.cat(pred, dim=0)
 
 
-target_x = torch.cat(target, dim=0)
+target_x = torch.cat(targets, dim=0)
 
 
 print('Pred_x shape:', pred_x.shape)
