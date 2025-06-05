@@ -372,10 +372,13 @@ class regression_Transformer_GNN(nn.Module):
 
         # MLP2: Final prediction from aggregated features
         self.mlp2 = nn.Sequential(
-            nn.Linear(input_dim*4*(4+1), input_dim),
+            nn.Linear(input_dim*4*(4+1), 64),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(input_dim, output_dim)
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(64, output_dim)
         )
     def get_k_nearest(self, features, k):
         """Compute k nearest neighbors based on x,y,z coordinates"""
