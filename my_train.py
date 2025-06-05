@@ -56,7 +56,7 @@ print(f"Number of batches in the validation set: {len(val_dataloader)}")
 #==================================================================================================
 # Set checkpoint path
 
-# checkpoint_path = config['checkpoint_path']
+checkpoint_path = config['checkpoint_path']
 # if checkpoint_path != "None" and checkpoint_path is not None and checkpoint_path != "none":
 #     print(f"Loading checkpoint from {checkpoint_path}")
 #     checkpoint_path = checkpoint_path
@@ -204,7 +204,7 @@ trainer = Trainer(
 
 #==================================================================================================
 # Train the model
-if checkpoint_path is not None:
-    trainer.fit(lit_model, train_dataloader, val_dataloader, ckpt_path=checkpoint_path)
-else:
-    trainer.fit(lit_model, train_dataloader, val_dataloader)
+# if checkpoint_path is not None:
+#     trainer.fit(lit_model, train_dataloader, val_dataloader, ckpt_path=checkpoint_path)
+# else:
+trainer.fit(lit_model, train_dataloader, val_dataloader)
