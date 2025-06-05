@@ -56,15 +56,15 @@ print(f"Number of batches in the validation set: {len(val_dataloader)}")
 #==================================================================================================
 # Set checkpoint path
 
-checkpoint_path = config['checkpoint_path']
-if checkpoint_path != "None" and checkpoint_path is not None and checkpoint_path != "none":
-    print(f"Loading checkpoint from {checkpoint_path}")
-    checkpoint_path = checkpoint_path
-else:
-    checkpoint_path = None
-    print("No checkpoint path provided. Starting training from scratch.")
+# checkpoint_path = config['checkpoint_path']
+# if checkpoint_path != "None" and checkpoint_path is not None and checkpoint_path != "none":
+#     print(f"Loading checkpoint from {checkpoint_path}")
+#     checkpoint_path = checkpoint_path
+# else:
+#     checkpoint_path = None
+#     print("No checkpoint path provided. Starting training from scratch.")
 
-#==================================================================================================
+# #==================================================================================================
 # Logging
 if config['use_wandb']:
     wandb_logger = WandbLogger(
