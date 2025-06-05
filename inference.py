@@ -103,7 +103,7 @@ for i in range(len(predictions)):
     pred.append(y_pred[:, 0])
 
 
-    targets.append(target[:, 0])
+    targets.append(target)
 
 
 # Concatenate the list of tensors to a single tensor
