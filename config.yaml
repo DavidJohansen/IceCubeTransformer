@@ -1,7 +1,7 @@
 # Configuration for Training the Neutrino Reconstruction Transformer Model
 
 # General run Settings
-run_name: "icecube_transformer_v1" # Name for logging and checkpointing
+run_name: "GNN_logRun" # Name for logging and checkpointing
 checkpoint_path: #"C:/Users/david/Downloads/AppMac/Final project/last.ckpt"            # Directory to save model checkpoints
 
 # Input Data Parameters
