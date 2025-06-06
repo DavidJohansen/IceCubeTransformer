@@ -430,7 +430,7 @@ class regression_Transformer_GNN(nn.Module):
             batch_x = x[b]  # Shape: (seq_len, feat_dim)
         
             # Create mask for non-zero 'rde' values (assuming 'rde' is last feature)
-            valid_mask = batch_x != torch.zeros(self.input_dim)  # Shape: (seq_len,)
+            valid_mask = batch_x != torch.zeros(self.input_dim, device=device)  # Shape: (seq_len,)
             valid_mask = ~torch.all(batch_x == 0, dim=1) 
             # Filter out zero 'rde' events
             valid_x = batch_x[valid_mask]  # Shape: (valid_len, feat_dim)
