@@ -423,7 +423,7 @@ class regression_Transformer_GNN(nn.Module):
         batch_size, seq_len, _ = x.shape
         
         # Apply each convolution
-        pred = []
+        aggregated_list = []
         for b in range(batch_size):
             batch_x = x[b]  # Shape: (seq_len, feat_dim)
         
@@ -432,33 +432,26 @@ class regression_Transformer_GNN(nn.Module):
             # Filter out zero 'rde' events
             valid_x = batch_x[valid_mask]  # Shape: (valid_len, feat_dim)
 
-            if valid_x.shape[0] > 0:
-                # Get edge indices for valid events
-                edge_index = self.get_edge_index(valid_x).to(device)
-                
-                # Apply GATv2Conv
-                x_ = self.convs(valid_x, edge_index)
-                
-                x_ = torch.cat([x_, valid_x], dim=1).to(device)  # Concatenate GNN output with original features
+            # Get edge indices for valid events
+            edge_index = self.get_edge_index(valid_x).to(device)
+            
+            # Apply GATv2Conv
+            x_ = self.convs(valid_x, edge_index)
+            
+            x_ = torch.cat([x_, valid_x], dim=1).to(device)  # Concatenate GNN output with original features
 
-                x_ = self.mlp1(x_)
+            x_ = self.mlp1(x_)
 
-                min_pool = torch.min(x_, dim=0)[0]
-                max_pool = torch.max(x_, dim=0)[0]
-                sum_pool = torch.sum(x_, dim=0)
-                mean_pool = torch.mean(x_, dim=0)
-      
-                # Concatenate aggregated features
-                aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool]).to(device)
-                y_pred = self.mlp2(aggregated)
-            else:
-                # Handle case where all events are filtered out
-                print('case!!!!')
-                y_pred = torch.zeros(1, device=device)  # Return zero tensor if no valid events
+            min_pool = torch.min(x_, dim=0)[0]
+            max_pool = torch.max(x_, dim=0)[0]
+            sum_pool = torch.sum(x_, dim=0)
+            mean_pool = torch.mean(x_, dim=0)
+  
+            aggregated_list.append(torch.cat([min_pool, max_pool, sum_pool, mean_pool])).to(device)
 
-            pred.append(y_pred)  # Add batch dimension
-        # Stack predictions from all batches
-        y_pred = torch.stack(pred, dim=0).to(device)  # Shape: (batch_size, output_dim)
+
+        stack = torch.stack(aggregated_list, dim=0).to(device)
+        y_pred = self.mlp2(stack)
 
         if target is None:
             loss = None
