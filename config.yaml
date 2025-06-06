@@ -12,7 +12,7 @@ input_data:
   training_parts: [[1]]             # List of list of training parts to use (e.g., [1, 2, 3]) matching the dataset_ids
   validation_parts: [[4]]                 # List of list of validation parts to use (e.g., [4]) matching the dataset_ids
   reconstruction_target: "energy"        # Target variable for reconstruction ('dir3vec', 'azimuth_zenith', etc.)
-  seq_dim: 526                            # Maximum sequence length of the input data
+  seq_dim: 512                            # Maximum sequence length of the input data
   num_workers: 6                          # Number of worker processes for data loading
   # Add other data-related parameters if needed (e.g., specific file names, pre-processing flags)
 
