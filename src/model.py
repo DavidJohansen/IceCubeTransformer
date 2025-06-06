@@ -337,8 +337,8 @@ class regression_Transformer_basisModel(nn.Module):
             loss = loss_func(y_pred, target)
             return y_pred, loss
 
-
-class regression_Transformer_GNN(nn.Module):
+            return y_pred, loss
+ class regression_Transformer_GNN(nn.Module):
     """
     Regression transformer class:
     - contains an input embedding layer, position embedding layer, transformer layers, and output layers
@@ -358,7 +358,7 @@ class regression_Transformer_GNN(nn.Module):
 
         super(regression_Transformer_GNN, self).__init__()
         # give x.shape[1] as embedding_dim
-
+        self.input_dim = input_dim
         self.k_neighbors = 8  # Number of nearest neighbors to consider
 
         self.convs = GATv2Conv(
@@ -399,12 +399,12 @@ class regression_Transformer_GNN(nn.Module):
         """
         device = x.device
         seq_len, _ = x.shape
-
+        k = min(self.k_neighbors, seq_len - 1)
         # Get k nearest neighbors for each node
-        neighbors = self.get_k_nearest(x, self.k_neighbors)
+        neighbors = self.get_k_nearest(x, k)
         
         # Create source nodes indices (repeated for each neighbor)
-        source_nodes = torch.arange(seq_len, device=device).repeat_interleave(self.k_neighbors)
+        source_nodes = torch.arange(seq_len, device=device).repeat_interleave(k)
         
         # Flatten neighbor indices
         target_nodes = neighbors[:, 1:].reshape(-1)  # Exclude self-connections
@@ -425,26 +425,43 @@ class regression_Transformer_GNN(nn.Module):
         batch_size, seq_len, _ = x.shape
         
         # Apply each convolution
-        dat = []
+        pred = []
         for b in range(batch_size):
-            res = self.convs(x[b], self.get_edge_index(x[b]))
-            dat.append(res)
-        d = torch.stack(dat)
-        x = torch.cat([d, x], dim=2)  # Concatenate GNN output with original features
-
-        x = self.mlp1(x)
-
-        min_pool = torch.min(x, dim=1)[0]
-        max_pool = torch.max(x, dim=1)[0]
-        sum_pool = torch.sum(x, dim=1)
-        mean_pool = torch.mean(x, dim=1)
+            batch_x = x[b]  # Shape: (seq_len, feat_dim)
         
+            # Create mask for non-zero 'rde' values (assuming 'rde' is last feature)
+            valid_mask = batch_x != torch.zeros(self.input_dim)  # Shape: (seq_len,)
+            valid_mask = ~torch.all(batch_x == 0, dim=1) 
+            # Filter out zero 'rde' events
+            valid_x = batch_x[valid_mask]  # Shape: (valid_len, feat_dim)
 
-        # Concatenate aggregated features
-        aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool], dim=1)
+            if valid_x.shape[0] > 0:
+                # Get edge indices for valid events
+                edge_index = self.get_edge_index(valid_x)
+                
+                # Apply GATv2Conv
+                x_ = self.convs(valid_x, edge_index)
+                
+                x_ = torch.cat([x_, valid_x], dim=1)  # Concatenate GNN output with original features
 
+                x_ = self.mlp1(x_)
 
-        y_pred = self.mlp2(aggregated)
+                min_pool = torch.min(x_, dim=0)[0]
+                max_pool = torch.max(x_, dim=0)[0]
+                sum_pool = torch.sum(x_, dim=0)
+                mean_pool = torch.mean(x_, dim=0)
+      
+                # Concatenate aggregated features
+                aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool]) 
+                y_pred = self.mlp2(aggregated)
+            else:
+                # Handle case where all events are filtered out
+                print('case!!!!')
+                y_pred = torch.zeros(1, device=device)  # Return zero tensor if no valid events
+
+            pred.append(y_pred)  # Add batch dimension
+        # Stack predictions from all batches
+        y_pred = torch.stack(pred, dim=0)  # Shape: (batch_size, output_dim)
 
         if target is None:
             loss = None
@@ -453,7 +470,6 @@ class regression_Transformer_GNN(nn.Module):
         else:
             loss = loss_func(y_pred, target)
             return y_pred, loss
-        
 #==================================================================================================
 # Define the PyTorch Lightning model      
 class LitModel(pl.LightningModule):
