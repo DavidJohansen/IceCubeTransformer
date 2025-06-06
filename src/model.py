@@ -338,7 +338,7 @@ class regression_Transformer_basisModel(nn.Module):
             return y_pred, loss
 
             return y_pred, loss
- class regression_Transformer_GNN(nn.Module):
+class regression_Transformer_GNN(nn.Module):
     """
     Regression transformer class:
     - contains an input embedding layer, position embedding layer, transformer layers, and output layers
