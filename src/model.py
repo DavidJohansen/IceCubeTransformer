@@ -447,7 +447,7 @@ class regression_Transformer_GNN(nn.Module):
             sum_pool = torch.sum(x_, dim=0)
             mean_pool = torch.mean(x_, dim=0)
   
-            aggregated_list.append(torch.cat([min_pool, max_pool, sum_pool, mean_pool])).to(device)
+            aggregated_list.append(torch.cat([min_pool, max_pool, sum_pool, mean_pool]))
 
 
         stack = torch.stack(aggregated_list, dim=0).to(device)
