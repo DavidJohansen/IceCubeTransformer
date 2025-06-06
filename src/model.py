@@ -401,23 +401,21 @@ class regression_Transformer_GNN(nn.Module):
         seq_len, _ = x.shape
         k = min(self.k_neighbors, seq_len - 1)
         # Get k nearest neighbors for each node
-        neighbors = self.get_k_nearest(x, k)
+        neighbors = self.get_k_nearest(x, k).to(device)
         
         # Create source nodes indices (repeated for each neighbor)
         source_nodes = torch.arange(seq_len, device=device).repeat_interleave(k)
         
         # Flatten neighbor indices
-        target_nodes = neighbors[:, 1:].reshape(-1)  # Exclude self-connections
+        target_nodes = neighbors[:, 1:].reshape(-1).to(device)  # Exclude self-connections
         
         # Create edge index tensor for this batch
         batch_edges = torch.stack([
             source_nodes,  # Source nodes
             target_nodes   # Target nodes (neighbors)
         ])
-
-        edge_index = batch_edges
         
-        return edge_index
+        return batch_edges
     
     def forward(self, x, target=None, event_lengths=None):
         device = x.device
@@ -430,19 +428,18 @@ class regression_Transformer_GNN(nn.Module):
             batch_x = x[b]  # Shape: (seq_len, feat_dim)
         
             # Create mask for non-zero 'rde' values (assuming 'rde' is last feature)
-            valid_mask = batch_x != torch.zeros(self.input_dim, device=device)  # Shape: (seq_len,)
-            valid_mask = ~torch.all(batch_x == 0, dim=1) 
+            valid_mask = ~torch.all(batch_x == 0, dim=1).to(device) 
             # Filter out zero 'rde' events
             valid_x = batch_x[valid_mask]  # Shape: (valid_len, feat_dim)
 
             if valid_x.shape[0] > 0:
                 # Get edge indices for valid events
-                edge_index = self.get_edge_index(valid_x)
+                edge_index = self.get_edge_index(valid_x).to(device)
                 
                 # Apply GATv2Conv
                 x_ = self.convs(valid_x, edge_index)
                 
-                x_ = torch.cat([x_, valid_x], dim=1)  # Concatenate GNN output with original features
+                x_ = torch.cat([x_, valid_x], dim=1).to(device)  # Concatenate GNN output with original features
 
                 x_ = self.mlp1(x_)
 
@@ -452,7 +449,7 @@ class regression_Transformer_GNN(nn.Module):
                 mean_pool = torch.mean(x_, dim=0)
       
                 # Concatenate aggregated features
-                aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool]) 
+                aggregated = torch.cat([min_pool, max_pool, sum_pool, mean_pool]).to(device)
                 y_pred = self.mlp2(aggregated)
             else:
                 # Handle case where all events are filtered out
@@ -461,7 +458,7 @@ class regression_Transformer_GNN(nn.Module):
 
             pred.append(y_pred)  # Add batch dimension
         # Stack predictions from all batches
-        y_pred = torch.stack(pred, dim=0)  # Shape: (batch_size, output_dim)
+        y_pred = torch.stack(pred, dim=0).to(device)  # Shape: (batch_size, output_dim)
 
         if target is None:
             loss = None
