@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 
 from src.dataloader import make_dataloader_PMT, make_dataloader_PMT_multi
 
-from src.model import regression_Transformer_GNN as regression_Transformer
+from src.model import regression_Transformer_basisModel as regression_Transformer
 from src.model import LitModel
 
 from src.utils import assert_config_train
