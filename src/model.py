@@ -321,11 +321,26 @@ class regression_Transformer_basisModel(nn.Module):
 
     def forward(self, x, target=None, event_lengths=None):
         device = x.device
+        batch_size, seq_len, _ = x.shape
+        
+        batch_outputs = []
+        for b in range(batch_size):
+            batch_x = x[b]  # Shape: (seq_len, feat_dim)
+            
+            # Create mask for non-zero rows
+            valid_mask = ~torch.all(batch_x == 0, dim=1) 
+            valid_x = batch_x[valid_mask]  # Shape: (valid_len, feat_dim)
 
-        x = self.feed_forward(x)
-
-        x = x.sum(dim=1) / event_lengths.view(-1, 1) # Shape: (batch_size, emb_dim)
-
+            # Apply feedforward network to valid events
+            processed_x = self.feed_forward(valid_x)  # Apply feedforward network
+            
+            # Average over valid events for this batch
+            batch_avg = processed_x.mean(dim=0)  # Shape: (feat_dim,)
+            batch_outputs.append(batch_avg)
+        
+        # Stack all batch outputs
+        x = torch.stack(batch_outputs, dim=0)  # Shape: (batch_size, feat_dim)
+        
 
         y_pred = self.linear_regression(x)
 
@@ -336,8 +351,7 @@ class regression_Transformer_basisModel(nn.Module):
         else:
             loss = loss_func(y_pred, target)
             return y_pred, loss
-
-            return y_pred, loss
+            
 class regression_Transformer_GNN(nn.Module):
     """
     Regression transformer class:
