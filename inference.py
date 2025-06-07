@@ -6,7 +6,7 @@ import yaml
 from pytorch_lightning.callbacks import TQDMProgressBar
 from pytorch_lightning import Trainer
 
-from src.model import regression_Transformer_GNN as regression_Transformer
+from src.model import regression_Transformer_basisModel as regression_Transformer
 from src.model import LitModel
 
 from src.utils import assert_config_inference 
