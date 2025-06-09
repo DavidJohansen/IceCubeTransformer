@@ -29,7 +29,7 @@ model_params:
 # Training Parameters
 training_params:
   device: "cuda:0"                        # Device to train on ('cuda:0', 'cuda:1', 'cpu')
-  batch_size: 128                          # Number of samples per batch
+  batch_size: 32                          # Number of samples per batch
   n_epochs: 15                           # Maximum number of training epochs
   patience: 20                            # Number of epochs to wait for improvement before early stopping (-1 to disable)
   loss_function: MSE_loss            # Loss function to use 
